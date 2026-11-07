@@ -71,7 +71,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  int temp = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,7 +98,7 @@ int main(void)
   OLED_init();
   OLED_display_on();
   OLED_LOGO();
- HAL_Delay(3000);
+  HAL_Delay(3000);
   HAL_UART_Receive_IT(&huart4, ReceiveData, 1);
   /* USER CODE END 2 */
 
@@ -111,20 +111,22 @@ int main(void)
     /* USER CODE BEGIN 3 */
     t += 0.01f;
     OLED_operate_gram(PEN_CLEAR);
-    if (ReceiveData[0] == 0x01)
+    if (ReceiveData[0] == '1')
     {
       TransmitData[0] = 2.0f * sinf(2.0f * PI * t);
       Vofa_JustFloat(TransmitData, 1);
       OLED_show_string(0, 0, (uint8_t *)"Sine");
+      temp = 1;
     }
-    else if (ReceiveData[0] == 0x02)
+    else if (ReceiveData[0] == '2')
     {
       float phase = fmodf(t, 0.5f);
       TransmitData[0] = (phase / 0.5f) * 2.0f - 1.0f; 
       Vofa_JustFloat(TransmitData, 1);
       OLED_show_string(2, 0, (uint8_t *)"Sawtooth");
+      temp = 2;
     }
-    else if (ReceiveData[0] == 0x03)
+    else if (ReceiveData[0] == '3')
     {
       float phase = fmodf(t, 1.5f);
       if (phase < 0.75f) {
@@ -134,6 +136,10 @@ int main(void)
       }
       Vofa_JustFloat(TransmitData, 1);
       OLED_show_string(4, 0, (uint8_t *)"Square");
+      temp = 3;
+    }
+    else {
+      ReceiveData[0] = temp;                                                                                                                                                  
     }
     OLED_refresh_gram();
     HAL_Delay(10);
